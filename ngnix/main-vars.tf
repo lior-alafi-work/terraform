@@ -7,7 +7,7 @@ resource "kubernetes_deployment" "tf-variables-deployment" {
   }
 
     spec {
-      replicas = 2
+      replicas = 1
       min_ready_seconds = 5
 
     selector {
