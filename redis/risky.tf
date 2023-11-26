@@ -1,7 +1,7 @@
 resource "kubernetes_deployment" "risky_redis_deployment" {
   metadata {
     name      = "risky-redis-deployment-tf"
-    namespace = "default"
+    namespace = "evil"
   }
 
   spec {
