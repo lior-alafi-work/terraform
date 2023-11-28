@@ -10,6 +10,7 @@ spec:
     matchLabels:
       app: secure-iac-acprovider
   maxUnavailable: 1
+
 ---
 # Source: secure-iac-acprovider/templates/secure-iac-acprovider-secret.yaml
 apiVersion: v1
@@ -71,47 +72,47 @@ spec:
         prometheus.io/scrape: "true"
     spec:
       imagePullSecrets:
-        - name: sysdigcloud-pull-secret
-      volumes:
-      containers:        
-        - name : secure-iac-acprovider-container
-          image: "local/acprovider:latest"
-          imagePullPolicy: IfNotPresent
-          volumeMounts:
-          envFrom:
-            - secretRef:
-                name: secure-iac-acprovider-secret
-            - configMapRef:
-                name: secure-iac-acprovider-config
-          env:
-            - name: NATS_CLIENT_ID
-              valueFrom:
-                fieldRef:
-                  apiVersion: v1
-                  fieldPath: metadata.name
-            - name: NATS_TLS_CA
-              value: /opt/certs/nats-js-tls-certs/ca.crt
-            - name: NATS_USER
-              valueFrom:
-                secretKeyRef:
-                  name: nats-credentials-sysdig
-                  key: NATS_USER
-                  optional: true
-            - name: NATS_USERNAME
-              valueFrom:
-                secretKeyRef:
-                  name: nats-credentials-sysdig
-                  key: NATS_USER
-                  optional: true
-            - name: NATS_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: nats-credentials-sysdig
-                  key: NATS_PASSWORD
-                  optional: true
-          resources:
-            limits:
-              cpu: 2
-              memory: 2Gi
-            requests:
-              memory: 50Mi
+      - name: sysdigcloud-pull-secret
+      containers:
+      - name: secure-iac-acprovider-container
+        image: "local/acprovider:latest"
+        imagePullPolicy: IfNotPresent
+        envFrom:
+        - secretRef:
+            name: secure-iac-acprovider-secret
+        - configMapRef:
+            name: secure-iac-acprovider-config
+        env:
+        - name: NATS_CLIENT_ID
+          valueFrom:
+            fieldRef:
+              apiVersion: v1
+              fieldPath: metadata.name
+        - name: NATS_TLS_CA
+          value: /opt/certs/nats-js-tls-certs/ca.crt
+        - name: NATS_USER
+          valueFrom:
+            secretKeyRef:
+              name: nats-credentials-sysdig
+              key: NATS_USER
+              optional: true
+        - name: NATS_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: nats-credentials-sysdig
+              key: NATS_USER
+              optional: true
+        - name: NATS_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: nats-credentials-sysdig
+              key: NATS_PASSWORD
+              optional: true
+        resources:
+          limits:
+            cpu: 2
+            memory: 2Gi
+          requests:
+            memory: 50Mi
+        securityContext:
+          readOnlyRootFilesystem: true
