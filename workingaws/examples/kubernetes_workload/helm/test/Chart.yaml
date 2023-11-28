@@ -1,0 +1,16 @@
+apiVersion: v2
+name: test
+description: A test worklowad
+ not define any templates and therefore cannot be deployed.
+type: application
+version: 0.1.0
+appVersion: "0.0.1"
+
+dependencies:
+  - name: helm-test-dep
+    # repository: https://charts.sysdig.com
+    repository: file://../helm-test-dep
+    version: 0.1.0
+    alias: helm-test-dep
+    import-values:
+      - data

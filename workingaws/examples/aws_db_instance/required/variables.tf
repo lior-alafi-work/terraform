@@ -1,0 +1,3 @@
+variable "encrypt" {
+    type = bool
+}

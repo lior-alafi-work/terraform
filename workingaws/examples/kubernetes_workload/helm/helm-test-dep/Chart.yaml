@@ -1,0 +1,7 @@
+apiVersion: v2
+name: helm-test-dep
+description: Example for helm deps
+type: library
+version: 0.1.0
+appVersion: "0.0.1"
+

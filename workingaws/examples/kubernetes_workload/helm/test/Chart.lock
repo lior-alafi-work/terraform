@@ -1,0 +1,6 @@
+dependencies:
+- name: helm-test-dep
+  repository: file://../helm-test-dep
+  version: 0.1.0
+digest: sha256:372f9d88e8a2a758b0af609aab5d6e6f1c46f052e528a396da430463cdf892c9
+generated: "2023-01-31T18:35:33.467584+01:00"
