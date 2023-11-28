@@ -1,0 +1,351 @@
+---
+# Source: nats/templates/pdb.yaml
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: release-name-nats
+  namespace: sysdig
+  labels:
+    helm.sh/chart: nats-0.19.12
+    app.kubernetes.io/name: nats
+    app.kubernetes.io/instance: release-name
+    app.kubernetes.io/version: "2.9.15-alpine"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  maxUnavailable: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: nats
+      app.kubernetes.io/instance: release-name
+---
+# Source: nats/templates/rbac.yaml
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: release-name-nats
+  namespace: sysdig
+  labels:
+    helm.sh/chart: nats-0.19.12
+    app.kubernetes.io/name: nats
+    app.kubernetes.io/instance: release-name
+    app.kubernetes.io/version: "2.9.15-alpine"
+    app.kubernetes.io/managed-by: Helm
+---
+# Source: nats/templates/configmap.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: release-name-nats-config
+  namespace: sysdig
+  labels:
+    helm.sh/chart: nats-0.19.12
+    app.kubernetes.io/name: nats
+    app.kubernetes.io/instance: release-name
+    app.kubernetes.io/version: "2.9.15-alpine"
+    app.kubernetes.io/managed-by: Helm
+data:
+  nats.conf: |
+    # NATS Clients Port
+    port: 4222
+
+    # PID file shared with configuration reloader.
+    pid_file: "/var/run/nats/nats.pid"
+
+    ###############
+    #             #
+    # Monitoring  #
+    #             #
+    ###############
+    http: 8222
+    server_name:$POD_NAME
+    ###################################
+    #                                 #
+    # NATS JetStream                  #
+    #                                 #
+    ###################################
+    jetstream {
+      max_mem: 1Gi
+      store_dir: /data
+
+      max_file:10Gi
+    }
+    ###################################
+    #                                 #
+    # NATS Full Mesh Clustering Setup #
+    #                                 #
+    ###################################
+    cluster {
+      port: 6222
+      name: nats
+
+      routes = [
+        nats://release-name-nats-0.release-name-nats.sysdig.svc.cluster.local:6222,nats://release-name-nats-1.release-name-nats.sysdig.svc.cluster.local:6222,nats://release-name-nats-2.release-name-nats.sysdig.svc.cluster.local:6222,
+        
+      ]
+      cluster_advertise: $CLUSTER_ADVERTISE
+
+      connect_retries: 120
+    }
+    lame_duck_grace_period: 10s
+    lame_duck_duration: 30s
+    ##################
+    #                #
+    # Authorization  #
+    #                #
+    ##################
+    authorization {
+      users: [
+        {"password":"password","user":"sysdig-nats"},
+      ]
+    }
+---
+# Source: nats/templates/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: release-name-nats
+  namespace: sysdig
+  labels:
+    helm.sh/chart: nats-0.19.12
+    app.kubernetes.io/name: nats
+    app.kubernetes.io/instance: release-name
+    app.kubernetes.io/version: "2.9.15-alpine"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  selector:
+    app.kubernetes.io/name: nats
+    app.kubernetes.io/instance: release-name
+  clusterIP: None
+  publishNotReadyAddresses: true
+  ports:
+  - name: client
+    port: 4222
+    appProtocol: tcp
+  - name: cluster
+    port: 6222
+    appProtocol: tcp
+  - name: monitor
+    port: 8222
+    appProtocol: http
+  - name: metrics
+    port: 7777
+    appProtocol: http
+  - name: leafnodes
+    port: 7422
+    appProtocol: tcp
+  - name: gateways
+    port: 7522
+    appProtocol: tcp
+---
+# Source: nats/templates/nats-box.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: release-name-nats-box
+  namespace: sysdig
+  labels:
+    app: release-name-nats-box
+    chart: nats-0.19.12
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: release-name-nats-box
+  template:
+    metadata:
+      labels:
+        app: release-name-nats-box
+    spec:
+      volumes:
+      containers:
+      - name: nats-box
+        image: natsio/nats-box:0.13.7
+        imagePullPolicy: IfNotPresent
+        resources:
+          {}
+        env:
+        - name: NATS_URL
+          value: release-name-nats
+        command:
+        - "tail"
+        - "-f"
+        - "/dev/null"
+        volumeMounts:
+---
+# Source: nats/templates/statefulset.yaml
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: release-name-nats
+  namespace: sysdig
+  labels:
+    helm.sh/chart: nats-0.19.12
+    app.kubernetes.io/name: nats
+    app.kubernetes.io/instance: release-name
+    app.kubernetes.io/version: "2.9.15-alpine"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: nats
+      app.kubernetes.io/instance: release-name
+  replicas: 3
+  serviceName: release-name-nats
+
+  podManagementPolicy: Parallel
+
+  template:
+    metadata:
+      annotations:
+        checksum/config: b195b1b8c3cdea2891774b51278c74a5fabc9d0c503f649ff8939a2178b15190
+      labels:
+        app.kubernetes.io/name: nats
+        app.kubernetes.io/instance: release-name
+    spec:
+      dnsPolicy: ClusterFirst
+      # Common volumes for the containers.
+      volumes:
+      - name: config-volume
+        configMap:
+          name: release-name-nats-config
+
+      # Local volume shared with the reloader.
+      - name: pid
+        emptyDir: {}
+
+      #################
+      #               #
+      #  TLS Volumes  #
+      #               #
+      #################
+
+      serviceAccountName: release-name-nats
+
+      # Required to be able to HUP signal and apply config
+      # reload to the server without restarting the pod.
+      shareProcessNamespace: true
+
+      #################
+      #               #
+      #  NATS Server  #
+      #               #
+      #################
+      terminationGracePeriodSeconds: 60
+      containers:
+      - name: nats
+        image: nats:2.9.15-alpine
+        imagePullPolicy: IfNotPresent
+        resources:
+          {}
+        ports:
+        - containerPort: 4222
+          name: client
+        - containerPort: 6222
+          name: cluster
+        - containerPort: 8222
+          name: monitor
+
+        command:
+        - "nats-server"
+        - "--config"
+        - "/etc/nats-config/nats.conf"
+
+        # Required to be able to define an environment variable
+        # that refers to other environment variables.  This env var
+        # is later used as part of the configuration file.
+        env:
+        - name: POD_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+        - name: SERVER_NAME
+          value: $(POD_NAME)
+        - name: POD_NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        - name: CLUSTER_ADVERTISE
+          value: $(POD_NAME).release-name-nats.$(POD_NAMESPACE).svc.cluster.local
+        volumeMounts:
+        - name: config-volume
+          mountPath: /etc/nats-config
+        - name: pid
+          mountPath: /var/run/nats
+        - name: release-name-nats-js-pvc
+          mountPath: /data
+        
+
+        #######################
+        #                     #
+        # Healthcheck Probes  #
+        #                     #
+        #######################
+        livenessProbe:
+          failureThreshold: 3
+          httpGet:
+            path: /
+            port: 8222
+          initialDelaySeconds: 10
+          periodSeconds: 30
+          successThreshold: 1
+          timeoutSeconds: 5
+        readinessProbe:
+          failureThreshold: 3
+          httpGet:
+            path: /
+            port: 8222
+          initialDelaySeconds: 10
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 5
+        startupProbe:
+          # for NATS server versions >=2.7.1, /healthz will be enabled
+          # startup probe checks that the JS server is enabled, is current with the meta leader,
+          # and that all streams and consumers assigned to this JS server are current
+          failureThreshold: 90
+          httpGet:
+            path: /healthz
+            port: 8222
+          initialDelaySeconds: 10
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 5
+
+        # Gracefully stop NATS Server on pod deletion or image upgrade.
+        #
+        lifecycle:
+          preStop:
+            exec:
+              # send the lame duck shutdown signal to trigger a graceful shutdown
+              # nats-server will ignore the TERM signal it receives after this
+              #
+              command:
+              - "nats-server"
+              - "-sl=ldm=/var/run/nats/nats.pid"
+
+      #################################
+      #                               #
+      #  NATS Configuration Reloader  #
+      #                               #
+      #################################
+
+      ##############################
+      #                            #
+      #  NATS Prometheus Exporter  #
+      #                            #
+      ##############################
+
+  volumeClaimTemplates:
+  #####################################
+  #                                   #
+  #  Jetstream New Persistent Volume  #
+  #                                   #
+  #####################################
+    - metadata:
+        name: release-name-nats-js-pvc
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        resources:
+          requests:
+            storage: 10Gi

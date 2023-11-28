@@ -1,0 +1,199 @@
+---
+# Source: secure-iac-cloudengine/templates/secure-iac-cloudengine-secret.yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: secure-iac-cloudengine-secret
+  namespace: sysdig
+type: Opaque
+data:
+  segmentio.token: ""
+  MONITOR_BACKEND_AUDIT_TOKEN: "YWUzNWJhZjAtMWJjNi00MmU5LWFhNWEtNGIxYmZiOTI2NTA5"
+stringData:
+  SERVICE_TOKEN: test-token
+  DB_USER: root
+  DB_PASSWORD: "password"
+  DB_HOST: host.docker.internal
+  MONGO_DB_URI: "mongodb+srv://root:password@host.docker.internal/cloud?retryWrites=true&w=majority"
+---
+# Source: secure-iac-cloudengine/templates/secure-iac-cloudengine-config.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: secure-iac-cloudengine-config
+  namespace: sysdig
+data:
+  DB_NAME: cloud
+  ENVIRONMENT: DEVELOPMENT
+
+  NATS_URL: "nats"
+  NATS_TLS_ENABLED: "true"
+
+  SERVICE_NAME: secure-iac-cloudengine
+  AUDIT_FORWARDING_ENABLED: "true"
+  INGESTION_API_GRPC_ENDPOINT: sysdigcloud-events-ingestion:3000
+  AUDIT_WORKERS: "5"
+  GRAPH_INGESTION_DRY_RUN: "false"
+  EXPOSURE_ANALYSIS_AZURE_VM_ENABLED: "false"
+  EXPOSURE_ANALYSIS_AZURE_BLOB_ENABLED: "false"
+  LEGACY_BACKEND_ENDPOINT: "http://backend-mock-service:9000"
+  LEGACY_BACKEND_TLS_SKIP_CHECK: "true"
+---
+# Source: secure-iac-cloudengine/templates/secure-iac-cloudengine-service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: secure-iac-cloudengine-service
+  namespace: sysdig
+spec:
+  type: ClusterIP
+  selector:
+    app: secure-iac-cloudengine
+  ports:
+    - port: 8080
+      targetPort: 8080
+---
+# Source: secure-iac-cloudengine/templates/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: secure-iac-cloudengine
+  name: secure-iac-cloudengine-deployment
+  namespace: sysdig
+spec:
+  replicas: 
+  selector:
+    matchLabels:
+      app: secure-iac-cloudengine
+  template:
+    metadata:
+      labels:
+        app: secure-iac-cloudengine
+        np-allow-ingress: 'true'
+      annotations:
+        prometheus.io/path: /metrics
+        prometheus.io/port: "25000"
+        prometheus.io/scrape: "true"
+    spec:
+      serviceAccountName: sysdig
+      imagePullSecrets:
+        - name: sysdigcloud-pull-secret
+      volumes:
+        
+      containers:        
+        - name : secure-iac-cloudengine-container
+          image: "local/cloudengine:latest"
+          imagePullPolicy: IfNotPresent
+          volumeMounts:
+            
+          ports:
+            - containerPort: 8080
+          envFrom:
+            - secretRef:
+                name: secure-iac-cloudengine-secret
+            - configMapRef:
+                name: secure-iac-cloudengine-config
+          env:
+            - name: NATS_CLIENT_ID
+              valueFrom:
+                fieldRef:
+                  apiVersion: v1
+                  fieldPath: metadata.name
+            - name: NATS_TLS_CA
+              value: /opt/certs/nats-js-tls-certs/ca.crt
+            - name: NATS_USER
+              valueFrom:
+                secretKeyRef:
+                  name: nats-credentials-sysdig
+                  key: NATS_USER
+                  optional: true
+            - name: NATS_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: nats-credentials-sysdig
+                  key: NATS_USER
+                  optional: true
+            - name: NATS_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: nats-credentials-sysdig
+                  key: NATS_PASSWORD
+                  optional: true
+          resources:
+            limits:
+              cpu: 2
+              memory: 2Gi
+            requests:
+              memory: 50Mi
+---
+# Source: secure-iac-cloudengine/templates/secure-iac-cloudengine-pre-job.yaml
+apiVersion: batch/v1
+kind: Job
+metadata:
+  namespace: sysdig
+  name: db-secure-iac-cloudengine-init-job
+spec:
+  backoffLimit: 0
+  template:
+    metadata:
+      name: secure-iac-cloudengine-db-upgrade-job
+    spec:
+      serviceAccountName: sysdig
+      restartPolicy: Never
+      imagePullSecrets:
+        - name: sysdigcloud-pull-secret
+      volumes:
+        
+      containers:
+        - name: secure-iac-cloudengine-db-upgrade-job-container
+          image: local/cloudengine-db-migrations:latest
+          imagePullPolicy: IfNotPresent
+          command:
+            - /bin/sh
+            - -c
+            - |
+              if [ ! -z "${MONGO_DB_ADMIN_URI}" ]; then
+                echo "Checking if user exists: '${DB_USER}'"
+                user=$(mongosh "${MONGO_DB_ADMIN_URI}" --eval "db.getUser('${DB_USER}')" | tail -n1)
+                if [ "$user" = "null" ]; then
+                  echo "Creating user: '${DB_USER}'"
+                  mongosh "${MONGO_DB_ADMIN_URI}" --eval "db.createUser({ user: '${DB_USER}', pwd: '${DB_PASSWORD}', roles: [ 'readWriteAnyDatabase', 'dbAdminAnyDatabase' ] })"
+                fi;
+              fi
+              
+              migrate -source file://migrations -database "${MONGO_DB_URI}" up
+          envFrom:
+            - secretRef:
+                name: secure-iac-cloudengine-secret
+            - configMapRef:
+                name: secure-iac-cloudengine-config
+          volumeMounts:
+---
+# Source: secure-iac-cloudengine/templates/ingress.yaml
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  annotations:
+    ingress.kubernetes.io/affinity: cookie
+    ingress.kubernetes.io/session-cookie-name: INGRESSCOOKIEAPI
+    kubernetes.io/ingress.class: haproxy
+  labels:
+    app.kubernetes.io/managed-by: ingress-config
+    app.kubernetes.io/name: ingress-config
+    app.kubernetes.io/part-of: sysdigcloud
+    role: ingress-config
+    tier: infra
+  name: sysdigcloud-secure-iac-cloudengine-ingress
+  namespace: sysdig
+spec:
+  rules:
+    - http:
+        paths:
+          - backend:
+              service:
+                name: secure-iac-cloudengine-service
+                port:
+                  number: 8080
+            path: /api/cspm/v1/cloud
+            pathType: ImplementationSpecific

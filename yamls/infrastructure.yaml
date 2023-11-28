@@ -1,0 +1,29 @@
+---
+# Source: iac-infra/templates/serviceaccount.yaml
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: sysdig
+  namespace: sysdig
+  labels:
+    app: apolicy-krm
+---
+# Source: iac-infra/templates/nats-credentials.yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: nats-credentials-sysdig
+  namespace: sysdig
+type: Opaque
+stringData:
+  NATS_USER: sysdig-nats
+  NATS_PASSWORD: password
+---
+# Source: iac-infra/templates/storage-class.yaml
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: sysdig-reclaim-delete
+reclaimPolicy: Delete
+
+provisioner: docker.io/hostpath

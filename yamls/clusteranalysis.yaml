@@ -1,0 +1,214 @@
+---
+# Source: secure-iac-clusteranalysis/templates/deployment.yaml
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: secure-iac-clusteranalysis-pdb
+  namespace: sysdig
+spec:
+  selector:
+    matchLabels:
+      app: secure-iac-clusteranalysis
+  maxUnavailable: 1
+---
+# Source: secure-iac-clusteranalysis/templates/secure-iac-clusteranalysis-secret.yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: secure-iac-clusteranalysis-secret
+  namespace: sysdig
+type: Opaque
+data:
+  segmentio.token: ""
+  MONITOR_BACKEND_AUDIT_TOKEN: "YWUzNWJhZjAtMWJjNi00MmU5LWFhNWEtNGIxYmZiOTI2NTA5"
+stringData:
+  DB_USER: root
+  DB_PASSWORD: "password"
+  DB_HOST: host.docker.internal
+  MONGO_DB_URI: "mongodb+srv://root:password@host.docker.internal/analysis?retryWrites=true&w=majority"
+  EXTERNAL_NATS_PASSWORD: password
+  SERVICE_TOKEN: test-token
+  READ_CUSTOMER_SERVICE_TOKEN: test-token
+---
+# Source: secure-iac-clusteranalysis/templates/secure-iac-clusteranalysis-config.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: secure-iac-clusteranalysis-config
+  namespace: sysdig
+data:
+  DB_NAME: analysis
+  ENVIRONMENT: DEVELOPMENT
+
+  NATS_URL: "nats"
+  NATS_TLS_ENABLED: "true"
+  
+  EXTERNAL_NATS_URL: nats-external:4222
+  EXTERNAL_NATS_USER: sysdig-external-nats
+  EXTERNAL_NATS_INSECURE: "true"
+  SERVICE_NAME: secure-iac-clusteranalysis
+  AUDIT_FORWARDING_ENABLED: "true"
+  INGESTION_API_GRPC_ENDPOINT: sysdigcloud-events-ingestion:3000
+  AUDIT_WORKERS: "5"
+  GRAPH_INGESTION_DRY_RUN: "false"
+  LEGACY_BACKEND_ENDPOINT: "http://backend-mock-service:9000"
+  LEGACY_BACKEND_TLS_SKIP_CHECK: "true"
+---
+# Source: secure-iac-clusteranalysis/templates/secure-iac-clusteranalysis-service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: secure-iac-clusteranalysis-service
+  namespace: sysdig
+spec:
+  type: ClusterIP
+  selector:
+    app: secure-iac-clusteranalysis
+  ports:
+    - port: 8080
+      targetPort: 8080
+---
+# Source: secure-iac-clusteranalysis/templates/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: secure-iac-clusteranalysis
+  name: secure-iac-clusteranalysis-deployment
+  namespace: sysdig
+spec:
+  replicas: 
+  selector:
+    matchLabels:
+      app: secure-iac-clusteranalysis
+  template:
+    metadata:
+      labels:
+        app: secure-iac-clusteranalysis
+        np-allow-ingress: 'true'
+      annotations:
+        prometheus.io/path: /metrics
+        prometheus.io/port: "25000"
+        prometheus.io/scrape: "true"
+    spec:
+      serviceAccountName: sysdig
+      imagePullSecrets:
+        - name: sysdigcloud-pull-secret
+      volumes:
+        
+      containers:        
+        - name : secure-iac-clusteranalysis-container
+          image: "local/clusteranalysis:latest"
+          imagePullPolicy: IfNotPresent
+          volumeMounts:
+            
+          ports:
+            - containerPort: 8080
+          envFrom:
+            - secretRef:
+                name: secure-iac-clusteranalysis-secret
+            - configMapRef:
+                name: secure-iac-clusteranalysis-config
+          env:
+            - name: NATS_CLIENT_ID
+              valueFrom:
+                fieldRef:
+                  apiVersion: v1
+                  fieldPath: metadata.name
+            - name: NATS_TLS_CA
+              value: /opt/certs/nats-js-tls-certs/ca.crt
+            - name: NATS_USER
+              valueFrom:
+                secretKeyRef:
+                  name: nats-credentials-sysdig
+                  key: NATS_USER
+                  optional: true
+            - name: NATS_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: nats-credentials-sysdig
+                  key: NATS_USER
+                  optional: true
+            - name: NATS_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: nats-credentials-sysdig
+                  key: NATS_PASSWORD
+                  optional: true
+          resources:
+            limits:
+              cpu: 2
+              memory: 2Gi
+            requests:
+              memory: 200Mi
+---
+# Source: secure-iac-clusteranalysis/templates/secure-iac-clusteranalysis-pre-job.yaml
+apiVersion: batch/v1
+kind: Job
+metadata:
+  namespace: sysdig
+  name: db-secure-iac-clusteranalysis-init-job
+spec:
+  backoffLimit: 0
+  template:
+    metadata:
+      name: secure-iac-clusteranalysis-db-upgrade-job
+    spec:
+      serviceAccountName: sysdig
+      restartPolicy: Never
+      imagePullSecrets:
+        - name: sysdigcloud-pull-secret
+      volumes:
+        
+      containers:
+        - name: secure-iac-clusteranalysis-db-upgrade-job-container
+          image: local/clusteranalysis-db-migrations:latest
+          imagePullPolicy: IfNotPresent
+          command:
+            - /bin/sh
+            - -c
+            - |
+              if [ ! -z "${MONGO_DB_ADMIN_URI}" ]; then
+                echo "Checking if user exists: '${DB_USER}'"
+                user=$(mongosh "${MONGO_DB_ADMIN_URI}" --eval "db.getUser('${DB_USER}')" | tail -n1)
+                if [ "$user" = "null" ]; then
+                  echo "Creating user: '${DB_USER}'"
+                  mongosh "${MONGO_DB_ADMIN_URI}" --eval "db.createUser({ user: '${DB_USER}', pwd: '${DB_PASSWORD}', roles: [ 'readWriteAnyDatabase', 'dbAdminAnyDatabase' ] })"
+                fi;
+              fi
+              
+              migrate -source file://migrations -database "${MONGO_DB_URI}" up
+          envFrom:
+            - secretRef:
+                name: secure-iac-clusteranalysis-secret
+            - configMapRef:
+                name: secure-iac-clusteranalysis-config
+          volumeMounts:
+---
+# Source: secure-iac-clusteranalysis/templates/ingress.yaml
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  annotations:
+    ingress.kubernetes.io/affinity: cookie
+    ingress.kubernetes.io/session-cookie-name: INGRESSCOOKIEAPI
+    kubernetes.io/ingress.class: haproxy
+  labels:
+    app.kubernetes.io/managed-by: ingress-config
+    app.kubernetes.io/name: ingress-config
+    app.kubernetes.io/part-of: sysdigcloud
+    role: ingress-config
+    tier: infra
+  name: sysdigcloud-secure-iac-clusteranalysis-ingress
+  namespace: sysdig
+spec:
+  rules:
+    - http:
+        paths:
+          - backend:
+              service:
+                name: secure-iac-clusteranalysis-service
+                port:
+                  number: 8080
+            path: /api/cspm/v1/clusteranalysis
+            pathType: ImplementationSpecific

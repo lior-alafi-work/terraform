@@ -1,0 +1,98 @@
+---
+# Source: secure-iac-cloudcollector/templates/secure-iac-cloudcollector-secret.yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: secure-iac-cloudcollector-secret
+  namespace: sysdig
+type: Opaque
+data:
+  segmentio.token: ""
+  AZURE_CLIENT_SECRET: "YWJj"
+---
+# Source: secure-iac-cloudcollector/templates/secure-iac-cloudcollector-config.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: secure-iac-cloudcollector-config
+  namespace: sysdig
+data:
+  ENVIRONMENT: DEVELOPMENT
+  NATS_URL: "nats"
+  NATS_TLS_ENABLED: "true"
+  TRUSTED_IDENTITY_AWS: arn:aws:iam::273107874544:role/dev-secure-assume-role
+  TRUSTED_IDENTITY_GCP: arn:aws:iam::273107874544:role/dev-secure-assume-role
+  TRUSTED_IDENTITY_AZURE: "dd49593d-f413-4a73-937b-03e42293e446:369e8f8c-9658-4298-b26d-123a8ee23591"
+  AZURE_CLIENT_ID: "d820df54-10c9-44f9-9062-4c0db165323b"
+  CIEM_CUSTOMER_IDS_ENABLED: ""
+  SERVICE_NAME: secure-iac-cloudcollector
+---
+# Source: secure-iac-cloudcollector/templates/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: secure-iac-cloudcollector
+  name: secure-iac-cloudcollector-deployment
+  namespace: sysdig
+spec:
+  replicas: 
+  selector:
+    matchLabels:
+      app: secure-iac-cloudcollector
+  template:
+    metadata:
+      labels:
+        app: secure-iac-cloudcollector
+      annotations:
+        prometheus.io/path: /metrics
+        prometheus.io/port: "25000"
+        prometheus.io/scrape: "true"
+    spec:
+      serviceAccountName: sysdig
+      imagePullSecrets:
+        - name: sysdigcloud-pull-secret
+      containers:        
+        - name : secure-iac-cloudcollector-container
+          image: "local/cloudcollector:latest"
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8080
+          envFrom:
+            - secretRef:
+                name: secure-iac-cloudcollector-secret
+            - configMapRef:
+                name: secure-iac-cloudcollector-config
+          env:
+            - name: NATS_CLIENT_ID
+              valueFrom:
+                fieldRef:
+                  apiVersion: v1
+                  fieldPath: metadata.name
+            - name: NATS_TLS_CA
+              value: /opt/certs/nats-js-tls-certs/ca.crt
+            - name: NATS_USER
+              valueFrom:
+                secretKeyRef:
+                  name: nats-credentials-sysdig
+                  key: NATS_USER
+                  optional: true
+            - name: NATS_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: nats-credentials-sysdig
+                  key: NATS_USER
+                  optional: true
+            - name: NATS_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: nats-credentials-sysdig
+                  key: NATS_PASSWORD
+                  optional: true
+          resources:
+            limits:
+              cpu: 2
+              memory: 2Gi
+            requests:
+              cpu: 1
+              memory: 50Mi

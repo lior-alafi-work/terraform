@@ -1,0 +1,117 @@
+---
+# Source: secure-iac-acprovider/templates/deployment.yaml
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: secure-iac-acprovider-pdb
+  namespace: 
+spec:
+  selector:
+    matchLabels:
+      app: secure-iac-acprovider
+  maxUnavailable: 1
+---
+# Source: secure-iac-acprovider/templates/secure-iac-acprovider-secret.yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: secure-iac-acprovider-secret
+  namespace: sysdig
+type: Opaque
+data:
+  segmentio.token: ""
+  MONITOR_BACKEND_AUDIT_TOKEN: "YWUzNWJhZjAtMWJjNi00MmU5LWFhNWEtNGIxYmZiOTI2NTA5"
+stringData:
+  SERVICE_TOKEN: test-token
+  READ_CUSTOMER_SERVICE_TOKEN: test-token
+  EXTERNAL_NATS_PASSWORD: password
+---
+# Source: secure-iac-acprovider/templates/secure-iac-acprovider-config.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: secure-iac-acprovider-config
+  namespace: sysdig
+data:
+  ENVIRONMENT: DEVELOPMENT
+  NATS_URL: "nats"
+  NATS_TLS_ENABLED: "true"
+
+  EXTERNAL_NATS_URL: nats-external:4222
+  EXTERNAL_NATS_USER: sysdig-external-nats
+  EXTERNAL_NATS_INSECURE: "true"
+
+  AUDIT_FORWARDING_ENABLED: "false"
+  AUDIT_WORKERS: "5"
+  DRY_RUN: "true"
+  LEGACY_BACKEND_ENDPOINT: "http://backend-mock-service:9000"
+  LEGACY_BACKEND_TLS_SKIP_CHECK: "true"
+---
+# Source: secure-iac-acprovider/templates/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: secure-iac-acprovider
+  name: secure-iac-acprovider-deployment
+  namespace: sysdig
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: secure-iac-acprovider
+  template:
+    metadata:
+      labels:
+        app: secure-iac-acprovider
+        np-allow-ingress: 'true'
+      annotations:
+        prometheus.io/path: /metrics
+        prometheus.io/port: "25000"
+        prometheus.io/scrape: "true"
+    spec:
+      imagePullSecrets:
+        - name: sysdigcloud-pull-secret
+      volumes:
+      containers:        
+        - name : secure-iac-acprovider-container
+          image: "local/acprovider:latest"
+          imagePullPolicy: IfNotPresent
+          volumeMounts:
+          envFrom:
+            - secretRef:
+                name: secure-iac-acprovider-secret
+            - configMapRef:
+                name: secure-iac-acprovider-config
+          env:
+            - name: NATS_CLIENT_ID
+              valueFrom:
+                fieldRef:
+                  apiVersion: v1
+                  fieldPath: metadata.name
+            - name: NATS_TLS_CA
+              value: /opt/certs/nats-js-tls-certs/ca.crt
+            - name: NATS_USER
+              valueFrom:
+                secretKeyRef:
+                  name: nats-credentials-sysdig
+                  key: NATS_USER
+                  optional: true
+            - name: NATS_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: nats-credentials-sysdig
+                  key: NATS_USER
+                  optional: true
+            - name: NATS_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: nats-credentials-sysdig
+                  key: NATS_PASSWORD
+                  optional: true
+          resources:
+            limits:
+              cpu: 2
+              memory: 2Gi
+            requests:
+              memory: 50Mi

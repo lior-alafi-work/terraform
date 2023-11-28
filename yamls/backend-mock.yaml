@@ -1,0 +1,70 @@
+---
+# Source: backend-mock/templates/backend-mock.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: backend-mock-service
+  namespace: sysdig
+spec:
+  selector:
+    component: backend-mock
+  ports:
+    - protocol: TCP
+      port: 9000
+      targetPort: 9000
+---
+# Source: backend-mock/templates/backend-mock.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    component: backend-mock
+  name: backend-mock-deployment
+  namespace:  sysdig
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      component: backend-mock
+  template:
+    metadata:
+      labels:
+        component: backend-mock
+    spec:
+      serviceAccountName: sysdig
+      imagePullSecrets:
+        - name: sysdigcloud-pull-secret
+        - name: regcred
+      containers:
+        - name : backend-mock
+          imagePullPolicy: IfNotPresent
+          image: us-docker.pkg.dev/sysdig-artifact-registry-int/gar-docker/cspm/backend-mock:latest
+          ports:
+            - containerPort: 9000
+---
+# Source: backend-mock/templates/backend-mock.yaml
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  annotations:
+    kubernetes.io/ingress.class: "haproxy"
+  name: backend-mock
+  namespace: sysdig
+spec:
+  rules:
+    - http:
+        paths:
+          - backend:
+              service:
+                name: backend-mock-service
+                port:
+                  number: 9000
+            path: /api/
+            pathType: ImplementationSpecific
+          - backend:
+              service:
+                name: backend-mock-service
+                port:
+                  number: 9000
+            path: /ui/
+            pathType: ImplementationSpecific

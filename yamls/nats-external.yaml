@@ -1,0 +1,488 @@
+---
+# Source: nats-external/templates/local-ssl-secret.yaml
+apiVersion: v1
+kind: Secret
+type: kubernetes.io/tls
+metadata:
+  name: local-ssl-secret
+  namespace: sysdig
+data:
+  tls.ca: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSURERENDQWZTZ0F3SUJBZ0lVWXJxVFFIS21aSHFvMnFLY3hYL090eVRSdU5nd0RRWUpLb1pJaHZjTkFRRUwKQlFBd0hqRWNNQm9HQTFVRUF4TVRUa0ZVVXlCRGJIVnpkR1Z5SUVOQklFUkZWakFlRncweU1qQTFNVGt4TXpNdwpNREJhRncwek5qRXhNakV4TXpNd01EQmFNQjR4SERBYUJnTlZCQU1URTA1QlZGTWdRMngxYzNSbGNpQkRRU0JFClJWWXdnZ0VpTUEwR0NTcUdTSWIzRFFFQkFRVUFBNElCRHdBd2dnRUtBb0lCQVFEU1RSNXUwbnFBMEdGTllKbWgKVjhSWmRSM3EwRWRNWGxBZU5uSFdyUHkyZXRwY3cwcXltMGl4K0JWSVhkRW44V3dXeUZqM1Q4dUs5eW9LWWhoeAo4elJNcTB1akw4M09IZWN6dlA3VTl4Y1VSdUNPU2dLVjFPYklpd1kyQ0lyMUU2L0dZcTBudGN5OFhqcURjV2c1CmxqeHFUSVFkYUwwdlpXS3k1NWNJWG5EZTZKY2laN3o0V0s5ZjVibDYrcEJBNFFmS3dnUW1ta0FYK1RKUmp1algKMS9NNGNnNXNHa1lpZy9yNndrTmtmU05FR1JyRVN3VDl1c1ZXTXNtVnhvdlNmOVFDSnZBcUV5NEExVXpta1p3Zwp6ZFVKYlU3eUlEUld5SDJXSWFiK2RYR3hmZlNhTG94QzZQWnRUY3h1NkhZWTd1TGFIeUs0Nm5aOEtYNEQ1SnJGCmFQamxBZ01CQUFHalFqQkFNQTRHQTFVZER3RUIvd1FFQXdJQkJqQVBCZ05WSFJNQkFmOEVCVEFEQVFIL01CMEcKQTFVZERnUVdCQlFIUXBRYWw5RHRaWisvM2E5NHVPMmNQdkpQYlRBTkJna3Foa2lHOXcwQkFRc0ZBQU9DQVFFQQpyQTM4MVBreTlSc1FNRFRHcUcwRHlrWmR3UWMraWpVd1p6ZUFBaHBkUlVGeGFYSnpJcUxvOTdUZXN1OVJLU1I2CkF3VUt1T3NaUldZMElKbHNyTG0yc1hSdmFQWjFUblFBQ3RNZ2hBY0N6SU5nRG8rQWFMODlpTVBqRjE1Z2pFeGEKeFVlQXJnRzBZTjRISzlxL1RrTkhHOWJVTVBkTVZGUWgyZVQyZmljWmc5ZzlCNkZkVU0raDJoODk2MnUrTHJsaAphc0VMZGp4VUV6WHMrRnNVUDlKbUFqLzFzZlZiSk51SElFUjd2QkJXS05QWWtGMEsvWGdIS3VFS0dDY0MwQzBuCi92TkEyOC9CMm5JNnRZUU9rb0VybU5BUkw1S1RuRFY4MFFDaW1CK3J6NkFKdmwyVFF0QzU4elZicy9kT3YrKy8KMnljSzA5RGdwY29xR2c3ci9FVUVZQT09Ci0tLS0tRU5EIENFUlRJRklDQVRFLS0tLS0K
+  tls.key: LS0tLS1CRUdJTiBSU0EgUFJJVkFURSBLRVktLS0tLQpNSUlFcFFJQkFBS0NBUUVBNzYrdXJlbVgrdlc0SVVoOXA3QytXMCtxTkVwUVd6MFh2czQ4M082M2pJZkRNN1R1Cjh1Q2tuUThsV3E4L25lOWJpT2ZOYUgvRXBoYlZUUDdGVnBJUC91c0J3MDBsRGswRzRyb2I5Yit4bXpEeEpUTWIKdzlUSWMyc2RUVW1PSERrcWpUeU83UFBpWFdVbFA2VXplMW5HWEhEVTlaS2dYYVcrNDk5MG9hY0JyYkRiY3FBYgplTmo2SExQTFNJUnZ4VGdvcUYxM2t2a1FEaFZhN3ZDUEZtTkRjN29MV3pRZmNoSnBZWE5TZHlSMSs4U0VMVTNvCnV5OW9NSktXSUMzSDByUit1MTZCRnlGVWd0aUhqdXd6S3ZXcHNmd3VxYWNOT2lKekFGbjF4ZzcwT1BJbTMxUngKWTBBL3kvdU5oZ04vT3MyelB4UnphNFU0VE9GQ3VDamUwQzA2M1FJREFRQUJBb0lCQVFEUjVPZzBWaDZJWDR2YQpZYS9nSEkvbVNKSkZibHFHTzY3Q29icDh3dk9ydGV3RUtNc2ptQU92b21iVXppa0l0bVpUTXFNWGd1UURpblZLCkVzVmZOVk9hcWRRR1lsVXorOUl1MUVuTjRBdTVXcGVpT3VweWlMRHRHZjAwQkZqVmNGNUtCcUVtOGIvbWg3K2gKeDVxWXg1cEVzMjVhaXdleVdvWWE2VUVxbXFTR28yclpZcmJROFpVTjhXMU1zUHMxTDFKWWgrekMzeGcyMVNHdwpwMXJuS0o0RGgvT2xMVnAyUlBpaml0My9sYXdQRmtoalpubkphSmJmZWhvamd1TjhzYzNxdmYwQytPUnpZQmZuCnFpMFQrbFhLV1gyemh3N2FYelBkQXkzeXhLOWpOSXhCQnJPd0xYSm1WNG90V3M1empXbTNkZnpkc2xZbXkwUEoKdWRPWkZ4TGxBb0dCQVBFMXVGazFJU21DMXFlSXBKNVhDU1NON0JmV1M2ekNHeEhnWXNad21DL3N6YU9va2hQbwovNjNQT1dyQlpCOHlzWE5QZTBSZkR5eGhvMkJKSEY0MlhsTmZSU2xEakNLMmVGb3dIZEhDT3kxQWl3UmFwM3Q3CkRuazhBdCticDYzSCtqeVNpb1c0QlJ1OTYwSk43Rkc0Q0tHWVd1UGg4My9kdlFjaStETWI1QlViQW9HQkFQNWkKQytTODREbEVjZkRTYkw5bmZZZVlLaDAyVEFqRXhSM210aGVOeXZJMjR2UEQ5Q0J3aS9TRzFOeExEeG9ZWHB2bQp1aEp4dTBVK0JhVUFMNXhyUzQ0SDZmam5pMmJNWUxLbnNDTjZIbDEzS01sdjM4MnczY0JOM1p4RkxxV1MyT0Z0Ci9tNnhCVE5JMHVRVXRYbzdaNkJnNi9rb1Z3aFpweDkwUHVGK3p3ZG5Bb0dCQU11bWMzSzk3TFhEaGNBRkdoZWwKbkU2RWxLUzdoVURpMFVBU2x0SzhGWUhCQ1EzNE1QMG1aMWd6OFdJMHpYZVpzVUNPQnFEL01TeGpjekRFQ1hOeApxOG53VWRBNCs0UURVekd5RmpzWEppZGFxd1NPRllHbnI5eWowamxBamgybkRacytqajIvMUhCTHRPbFNLUWdGCnZTUFNJa3JzWmsyNnhQSFZrSUIyTitlcEFvR0JBSktFL3J5OVhaa2VwMUpDb1lpTm4yd2VaUU4yWnMwV0tVTlQKdzhaRlVZTzV3WGNPZ3VxOGFLQnJtT2RhQkZUUGZJN25rbjFWTEx4eFFPY00rRjlzSFpTdFVrS2ZlMWUybUd2TwowbEZjNFdpTVhkM0lwbXZmVjVxUVB2am5rRHFtSG0yWjRWYjRkenBXMDhHemUrUHZtM3h3MXZvb0Zoa2xLbkdmCmp5aHExZXc1QW9HQVZBQm5jOUFvVzlrcXVqTStqR2hnNk5MZ1BnU3pYTlRTNzU5b1g4em5BN1ZCcVVGMkhlWUwKWnF2amE4aFNuWFh1S0puVXFsT3dDNGJmcTZSSWZlZEIxd2cxeGJ4bTdQZkxGRGpmVFdodlhUU3BiZm1mU3NkMgpDZXhJNEtIaFFHMHRiMmkwTlNSOXpiZXpOTk93Zitma2VmQkxRSnJyV3ZiNnl5dHJRbUgybjhrPQotLS0tLUVORCBSU0EgUFJJVkFURSBLRVktLS0tLQo=
+  tls.crt: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSURrekNDQW51Z0F3SUJBZ0lVZTJBVC9ER3hvdCtlUVNMLzI0alhLZXc3ZFFJd0RRWUpLb1pJaHZjTkFRRUwKQlFBd0hqRWNNQm9HQTFVRUF4TVRUa0ZVVXlCRGJIVnpkR1Z5SUVOQklFUkZWakFlRncweU1qQTFNVGt4TXpNeApNREJhRncwek5qRXhNakV4TXpNeE1EQmFNQlV4RXpBUkJnTlZCQU1UQ201aGRITWdjbTkxZEdVd2dnRWlNQTBHCkNTcUdTSWIzRFFFQkFRVUFBNElCRHdBd2dnRUtBb0lCQVFEdnI2NnQ2WmY2OWJnaFNIMm5zTDViVDZvMFNsQmIKUFJlK3pqemM3cmVNaDhNenRPN3k0S1NkRHlWYXJ6K2Q3MXVJNTgxb2Y4U21GdFZNL3NWV2tnLys2d0hEVFNVTwpUUWJpdWh2MXY3R2JNUEVsTXh2RDFNaHpheDFOU1k0Y09TcU5QSTdzOCtKZFpTVS9wVE43V2NaY2NOVDFrcUJkCnBiN2ozM1NocHdHdHNOdHlvQnQ0MlBvY3M4dEloRy9GT0Npb1hYZVMrUkFPRlZydThJOFdZME56dWd0Yk5COXkKRW1saGMxSjNKSFg3eElRdFRlaTdMMmd3a3BZZ0xjZlN0SDY3WG9FWElWU0MySWVPN0RNcTlhbXgvQzZwcHcwNgpJbk1BV2ZYR0R2UTQ4aWJmVkhGalFEL0wrNDJHQTM4NnpiTS9GSE5yaFRoTTRVSzRLTjdRTFRyZEFnTUJBQUdqCmdkRXdnYzR3RGdZRFZSMFBBUUgvQkFRREFnV2dNQjBHQTFVZEpRUVdNQlFHQ0NzR0FRVUZCd01CQmdnckJnRUYKQlFjREFqQU1CZ05WSFJNQkFmOEVBakFBTUIwR0ExVWREZ1FXQkJTaDB3SlYwTzczVDZldTJoMlJDK2t6ZlJBcwpIekFmQmdOVkhTTUVHREFXZ0JRSFFwUWFsOUR0WlorLzNhOTR1TzJjUHZKUGJUQlBCZ05WSFJFRVNEQkdnaG9xCkxtNWhkSE10WlhoMFpYSnVZV3d1YzNselpHbG5Mbk4yWTRJb0tpNXVZWFJ6TFdWNGRHVnlibUZzTG5ONWMyUnAKWnk1emRtTXVZMngxYzNSbGNpNXNiMk5oYkRBTkJna3Foa2lHOXcwQkFRc0ZBQU9DQVFFQUh5THVsbkI0SVg2ZQpvaTQvTW1hK0hhelFQZmdSYjhmd1RoVUlheVN0ZUFnVDZnQVltVEZvSjdCTkpNYTMzNkhudE0wZXlSYWtqazZlCkFndjVKbVJiWTVRZmpRZGR0SUJmU05NWWhieXAvaGRrc1o0NjB4SDJDdnFTR2ZtUW5BUUs4eGk1TUxXTGVqdWQKMk8xZ0kyUmovZGdoQXlGUWhSY1hIbWc1OFpPS21XU3Z5SUtoMlVRQ28vNlFoaUFVZmhWbHQ3STJOcVlzYzIvOQpPTlFneVhLV0FBWUF4c0d4QWdOeVNHNGoxbXFGajQ0Ky9hTE5jdFNDS1Jyb0RDY0xCWFVJb0UrT3hhSkg4eTFTCktFZ1VSMi9ucWloTHppby9ZK0V5T3dIbS9xN2FyZ0pKaUF5UFU0Qzd0S3VocmZCK1FvNTlIK1FMVTRuWWlNeTkKU05hOUg5cWloUT09Ci0tLS0tRU5EIENFUlRJRklDQVRFLS0tLS0K
+---
+# Source: nats-external/templates/secret.yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: nats-external-secret
+  namespace: sysdig
+type: Opaque
+data:
+  service.token: "dGVzdC10b2tlbg=="
+---
+# Source: nats-external/templates/configmap.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nats-external-config
+  namespace: sysdig
+  labels:
+    helm.sh/chart: nats-external-0.11.0
+    
+    app.kubernetes.io/name: nats-external
+    app.kubernetes.io/instance: release-name
+    app.kubernetes.io/version: "2.6.5"
+    app.kubernetes.io/managed-by: Helm
+data:
+  MONITOR_BACKEND_ENDPOINT: "http://sysdigcloud-api:8080"
+  MONITOR_BACKEND_SKIP_TLS: "false"
+  nats.conf: |
+    # PID file shared with configuration reloader.
+    pid_file: "/var/run/nats/nats.pid"
+
+    ###############
+    #             #
+    # Monitoring  #
+    #             #
+    ###############
+    http: 8222
+    server_name:$POD_NAME
+    #####################
+    #                   #
+    # TLS Configuration #
+    #                   #
+    #####################
+    tls {
+        cert_file: /etc/nats-certs/clients/sysdigcloud-ssl-secret/tls.crt
+        key_file:  /etc/nats-certs/clients/sysdigcloud-ssl-secret/tls.key
+    }
+    ###################################
+    #                                 #
+    # NATS JetStream                  #
+    #                                 #
+    ###################################
+    jetstream {
+      max_mem: 1Gi
+      store_dir: /data
+
+      max_file:1Gi
+    }
+    ###################################
+    #                                 #
+    # NATS Full Mesh Clustering Setup #
+    #                                 #
+    ###################################
+    cluster {
+      port: 6222
+      name: nats-external-cluster
+      tls {
+          cert_file: /etc/nats-certs/cluster/nats-cluster-ssl-secret/tls.crt
+          key_file:  /etc/nats-certs/cluster/nats-cluster-ssl-secret/tls.key
+          ca_file: /etc/nats-certs/cluster/nats-cluster-ssl-secret/tls.ca
+      }
+
+      routes = [
+        nats://nats-external-js-sts-0.nats-external.sysdig.svc.cluster.local:6222,nats://nats-external-js-sts-1.nats-external.sysdig.svc.cluster.local:6222,nats://nats-external-js-sts-2.nats-external.sysdig.svc.cluster.local:6222,
+        
+      ]
+      cluster_advertise: $CLUSTER_ADVERTISE
+      no_advertise: true
+
+      connect_retries: 120
+    }
+    lame_duck_duration: 120s
+    ##################
+    #                #
+    # Websocket      #
+    #                #
+    ##################
+    websocket {
+      port: 443
+        
+        tls {
+        cert_file: /etc/nats-certs/ws/sysdigcloud-ssl-secret/tls.crt
+        key_file: /etc/nats-certs/ws/sysdigcloud-ssl-secret/tls.key
+        }
+      same_origin: false
+    }
+---
+# Source: nats-external/templates/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: nats-external
+  namespace: sysdig
+  labels:
+    helm.sh/chart: nats-external-0.11.0
+    
+    app.kubernetes.io/name: nats-external
+    app.kubernetes.io/instance: release-name
+    app.kubernetes.io/version: "2.6.5"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  selector:
+    
+    app.kubernetes.io/name: nats-external
+    app.kubernetes.io/instance: release-name
+  clusterIP: None
+  ports:
+  - name: websocket
+    port: 443
+  - name: client
+    port: 4222
+  - name: cluster
+    port: 6222
+  - name: monitor
+    port: 8222
+  - name: metrics
+    port: 7777
+  - name: leafnodes
+    port: 7422
+  - name: gateways
+    port: 7522
+---
+# Source: nats-external/templates/nats-box.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nats-external-box
+  namespace: sysdig
+  labels:
+    app: nats-external-box
+    chart: nats-external-0.11.0
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: nats-external-box
+  template:
+    metadata:
+      labels:
+        app: nats-external-box
+    spec:
+      volumes:
+      
+      - name: sysdigcloud-ssl-secret-clients-volume
+        secret:
+          secretName: sysdigcloud-ssl-secret
+      containers:
+      - name: nats-box
+        image: natsio/nats-box:0.7.0
+        imagePullPolicy: IfNotPresent
+        resources:
+          null
+        env:
+        - name: NATS_URL
+          value: nats-external
+        
+        lifecycle:
+          postStart:
+            exec:
+              command:
+              - /bin/sh
+              - -c
+              - cp /etc/nats-certs/clients/sysdigcloud-ssl-secret/* /usr/local/share/ca-certificates && update-ca-certificates
+        command:
+         - "tail"
+         - "-f"
+         - "/dev/null"
+        volumeMounts:
+        #######################
+        #                     #
+        #  TLS Volumes Mounts #
+        #                     #
+        #######################
+        
+        - name: sysdigcloud-ssl-secret-clients-volume
+          mountPath: /etc/nats-certs/clients/sysdigcloud-ssl-secret
+---
+# Source: nats-external/templates/statefulset.yaml
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: nats-external-js-sts
+  namespace: sysdig
+  labels:
+    helm.sh/chart: nats-external-0.11.0
+    
+    app.kubernetes.io/name: nats-external
+    app.kubernetes.io/instance: release-name
+    app.kubernetes.io/version: "2.6.5"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  selector:
+    matchLabels:
+      
+      app.kubernetes.io/name: nats-external
+      app.kubernetes.io/instance: release-name
+  replicas: 3
+  serviceName: nats-external
+  template:
+    metadata:
+      annotations:
+        prometheus.io/path: /metrics
+        prometheus.io/port: "7777"
+        prometheus.io/scrape: "true"
+      labels:
+        
+        app.kubernetes.io/name: nats-external
+        app.kubernetes.io/instance: release-name
+    spec:
+      imagePullSecrets:
+        - name: sysdigcloud-artifactory-pull-secret
+        - name: sysdigcloud-pull-secret
+        - name: regcred
+      # Common volumes for the containers.
+      volumes:
+      - name: config-volume
+        
+        configMap:
+          name: nats-external-config
+        
+
+      
+
+      # Local volume shared with the reloader.
+      - name: pid
+        emptyDir: {}
+
+      #################
+      #               #
+      #  TLS Volumes  #
+      #               #
+      #################
+      
+      - name: sysdigcloud-ssl-secret-clients-volume
+        secret:
+          secretName: sysdigcloud-ssl-secret
+      
+      - name: nats-cluster-ssl-secret-cluster-volume
+        secret:
+          secretName: nats-cluster-ssl-secret
+      
+      - name: sysdigcloud-ssl-secret-ws-volume
+        secret:
+          secretName: sysdigcloud-ssl-secret
+
+      
+
+      # Required to be able to HUP signal and apply config
+      # reload to the server without restarting the pod.
+      shareProcessNamespace: true
+
+      #################
+      #               #
+      #  NATS Server  #
+      #               #
+      #################
+      terminationGracePeriodSeconds: 120
+      containers:
+      - name: nats
+        image: mydocker/nats-external:1.0.0
+        imagePullPolicy: IfNotPresent
+        resources:
+          limits:
+            cpu: 2
+            memory: 6Gi
+          requests:
+            cpu: 1
+            memory: 3Gi
+        ports:
+        - containerPort: 4222
+          name: client
+        - containerPort: 7422
+          name: leafnodes
+        - containerPort: 7522
+          name: gateways
+        - containerPort: 6222
+          name: cluster
+        - containerPort: 8222
+          name: monitor
+        - containerPort: 7777
+          name: metrics
+        - containerPort: 443
+          name: websocket
+
+        command:
+         - "nats-server"
+         - "--config"
+         - "/etc/nats-config/nats.conf"
+         - "--user=sysdig-external-nats"
+         - "--pass=password"
+
+        # Required to be able to define an environment variable
+        # that refers to other environment variables.  This env var
+        # is later used as part of the configuration file.
+        env:
+        - name: MONITOR_BACKEND_ENDPOINT
+          valueFrom:
+            configMapKeyRef:
+              key: MONITOR_BACKEND_ENDPOINT
+              name: nats-external-config
+        - name: MONITOR_BACKEND_SKIP_TLS
+          valueFrom:
+            configMapKeyRef:
+              key: MONITOR_BACKEND_SKIP_TLS
+              name: nats-external-config
+        - name: SERVICE_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: nats-external-secret
+              key: service.token
+        - name: POD_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+        - name: SERVER_NAME
+          value: $(POD_NAME)
+        - name: POD_NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        - name: CLUSTER_ADVERTISE
+          value: $(POD_NAME).nats-external.$(POD_NAMESPACE).svc.cluster.local
+        volumeMounts:
+          - name: config-volume
+            mountPath: /etc/nats-config
+          - name: pid
+            mountPath: /var/run/nats
+
+          
+          - name: nats-external-js-pvc
+            mountPath: /data
+          #######################
+          #                     #
+          #  TLS Volumes Mounts #
+          #                     #
+          #######################
+          
+          - name: sysdigcloud-ssl-secret-clients-volume
+            mountPath: /etc/nats-certs/clients/sysdigcloud-ssl-secret
+          
+          - name: nats-cluster-ssl-secret-cluster-volume
+            mountPath: /etc/nats-certs/cluster/nats-cluster-ssl-secret
+          
+          - name: sysdigcloud-ssl-secret-ws-volume
+            mountPath: /etc/nats-certs/ws/sysdigcloud-ssl-secret
+
+        # Liveness/Readiness probes against the monitoring.
+        #
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 8222
+          initialDelaySeconds: 10
+          timeoutSeconds: 5
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 8222
+          initialDelaySeconds: 10
+          timeoutSeconds: 5
+
+        # Gracefully stop NATS Server on pod deletion or image upgrade.
+        #
+        lifecycle:
+          preStop:
+            exec:
+              # Using the alpine based NATS image, we add an extra sleep that is
+              # the same amount as the terminationGracePeriodSeconds to allow
+              # the NATS Server to gracefully terminate the client connections.
+              #
+              command:
+              - "/bin/sh"
+              - "-c"
+              - "nats-server -sl=ldm=/var/run/nats/nats.pid && /bin/sleep 120"
+
+      #################################
+      #                               #
+      #  NATS Configuration Reloader  #
+      #                               #
+      #################################
+      
+      - name: reloader
+        image: natsio/nats-server-config-reloader:0.6.2
+        imagePullPolicy: IfNotPresent
+        resources:
+          null
+        command:
+         - "nats-server-config-reloader"
+         - "-pid"
+         - "/var/run/nats/nats.pid"
+         - "-config"
+         - "/etc/nats-config/nats.conf"
+        volumeMounts:
+          - name: config-volume
+            mountPath: /etc/nats-config
+          - name: pid
+            mountPath: /var/run/nats
+      
+
+      ##############################
+      #                            #
+      #  NATS Prometheus Exporter  #
+      #                            #
+      ##############################
+      
+      - name: metrics
+        image: natsio/prometheus-nats-exporter:0.9.0
+        imagePullPolicy: IfNotPresent
+        resources:
+          {}
+        args:
+        - -connz
+        - -routez
+        - -subz
+        - -varz
+        - -prefix=nats
+        - -use_internal_server_id
+        - -jsz=all
+        - http://localhost:8222/
+        ports:
+        - containerPort: 7777
+          name: metrics
+      
+
+  volumeClaimTemplates:
+  #####################################
+  #                                   #
+  #  Jetstream New Persistent Volume  #
+  #                                   #
+  #####################################
+    - metadata:
+        name: nats-external-js-pvc
+      spec:
+        accessModes:
+          - "ReadWriteOnce"
+        resources:
+          requests:
+            storage: 1Gi
+---
+# Source: nats-external/templates/ingress.yaml
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  annotations:
+    ingress.kubernetes.io/affinity: cookie
+    ingress.kubernetes.io/session-cookie-name: INGRESSCOOKIEAPI
+    kubernetes.io/ingress.class: haproxy
+  labels:
+    app.kubernetes.io/managed-by: ingress-config
+    app.kubernetes.io/name: ingress-config
+    app.kubernetes.io/part-of: sysdigcloud
+    role: ingress-config
+    tier: infra
+  name: sysdigcloud-secure-iac-nats-external-ingress
+  namespace: sysdig
+spec:
+  rules:
+    - http:
+        paths:
+          - backend:
+              service:
+                name: nats-external
+                port:
+                  number: 443
+            path: /cspm-agent
+            pathType: ImplementationSpecific

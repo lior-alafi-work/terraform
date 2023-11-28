@@ -1,0 +1,462 @@
+---
+# Source: secure-iac-gitprovider/templates/statefulset.yaml
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: secure-iac-gitprovider-pdb
+  namespace: 
+spec:
+  selector:
+    matchLabels:
+      app: secure-iac-gitprovider
+  maxUnavailable: 1
+---
+# Source: secure-iac-gitprovider/templates/secure-iac-gitprovider-secret.yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: secure-iac-gitprovider-secret
+  namespace: sysdig
+type: Opaque
+data:
+  segmentio.token: ""
+  MONITOR_BACKEND_AUDIT_TOKEN: "YWUzNWJhZjAtMWJjNi00MmU5LWFhNWEtNGIxYmZiOTI2NTA5"
+stringData:
+  GITHUB_APP_SECRET: "4b1b00baea7d4edcb7c9538628f8ebfb"
+  GITHUB_APP_ID: "150083"
+  GITHUB_APP_NAME: sysdig-dev
+  GITHUB_PRIVATE_KEY: LS0tLS1CRUdJTiBSU0EgUFJJVkFURSBLRVktLS0tLQpNSUlFcEFJQkFBS0NBUUVBdWRtYWRwOTlJMmZxSDZYK253SlM5NDNrWitpcERxRDJQcEQ4K1BERGxuRm50QlZjCnM0bU1CTWU5dk9TNjM3OHpSbWoyV2JwaEJFdFdkWkRsLzRoVEgrSGo2anBFcjFNZlNsRVhEaDlxbnNXTksxeEcKViszUHVNUFZnbUZnaFNLVnpLZlpTSnFMdERBeUowaUd5bE1JZFgvdUpucEtEcCtCSnQ2cVlUNjlTLzNVaUlIWAo3Qk50QTRlZDN0MEJtMElZSnM4VU15Q2haVllsblpsU285VjdIa1ZCS1FqTmxDdlV5QjlGZkpJenorcHZ1azlDCmVoZTJ6ajNTUFJPNUNUNUJ5NklWREpTOHkyeVJJSDF1K3ZlUlFGdnJuMjZvTElTUTIvK1NPWENlVm01Q2JvUk0KWU04bjJncVpaTVlsVnNWc2ZoeFRnOW9jQUdQNThuM3JoZDU2SVFJREFRQUJBb0lCQUdaNWZabjZ4dDFHNXVrYwpkaERuRHloQXJMZytxVGpQdC9jM3FzVDR2Rit2bUNiTHdKbWVOZjVNeEduckZMOWFoY05GRE5EYzI3R3FlTG5LCmM0YzZlOXNRaXNNVDdkdGVVZHFBYTkzMXBLeDI4U2YvY1NuNmpwYXFKSWdIZVZqdmdQbWZjMGQ5TDVyakdFUmcKMFRHdUp2UGkza1dKR0Z5SHhvYlFMOUgrN2hGL3F1d1h4OU1ONnlmcXhkdjY0OFJoOVUyU2RzS05VUkFjdnQ5OQpkTXNpZmowV1ZDcDVDcjVkUUJxZDY4aXk0K0FJY2I3bnVFd3BNMENnYlh2WWZjYkc1czMrUjFQRFQ2Z2Jxbm5UCmp5ZWVzekJrNHJjR002VjNUSlcwU01YeU5zaVI1SytNVjVMWmlEc0QxYk9PWStlQ3BSTVQ1c2hYYVZXZlBiWk0KY2JWRHdLRUNnWUVBN0NEeUFPOFhwcHhOWmI4NEQ0OFFoVmRJcklNdE1tT3hmdWZCTU5PU2UxRkxEaGhHOVMwOAp6K1oxTk9QQmVBcXNJbXlHelhEb1BDYVhzd1Z0OEFBZkhnZC9JNStDU3cxdVhreXBCUGRKc1c1ZjYwNVppMUczClFkQ3p5c00zOHpqdUs2TGJDL3g1RUFNci8xbE9QQ0hsRDVNT0hYMHBGWXM2cFJoWkJ0aG1RY2NDZ1lFQXlYMTUKMG4ybXVBWHVkZmJ5VHZGWWpjVVpOL3ovN3VJSXZ2NXArNDNKaVJIckR2VTdxTDRuL1BLdVJTVHN3VTNNaXdiOApZSDM3U1Nvem1IaWNlcWphenBzZjV0QTc5bk5GcGFzWU1MR1NtQVVNUHJBZW5Yc0FNQzEyK2VMMWlDOFFrcEFsCk5KdjdyTTRjNGRzbkNqVEYrZ2x0SU15NTJzaE1uY0RhRlI5WTVOY0NnWUVBMCt5QnBxcnZuQjRlTE5wZzh6M2cKZ3Z3aWdvbzh6MFBBY3ZpSFlFNFM0dERFUHdNMDlDbEVzZ2JSWE1Xb3h4YzFCTFJJakN2d2tzUEVWT3pqallwZQpZekl4UG9TVGlNNm1Kc1pBeis4dFdheUpOQVFldzdaMGRnSmN5dmRJeU9kb2d3dG44eXNHY0lPWVFsWWhyRUJ6CmQvWHdyakM5NWRNT3NFdlk0eGJuTjlNQ2dZRUFycExHai9kS0Vic2g1cGMxVGV5UnV4T0FUQ0FxWndEMGJ2YmoKUUk2U2hPNC9hTkJWQmxqck1KL2JHaEZxQi9tdU5PNnlqNi9Ybm9hditYVFdydmZKektSZXVZN0Z4VHdPcGdGZApqaUxzVGtaaFc1Y2dqM1ZZcm1WVjVpQWNlQWUvSmgwNS95RCtwN1JWRmVMWkttQ2EvNDVYUE1ua1pZaVJ5VVNrCkx4VGY0alVDZ1lCNWsrRmMyRForNGh4alhmcW9XcHVLaWFBb056QWs3SHhIRUp2UDdHVHFuYUczZ0ZCaVhwKzQKZDg4QitTeUlpZlVKdmlLbnlSd2gwd1pUczlMdUNGUnAzQit3Nk1EcEZDMStuU3JrNlRvYUJkVDI1TzdFNkVIVApKMjNUL05tcnlPb3g1SExtTG1lYnZvQXR4QnVyb1VBQXlSbitub1Z0RXJFYlpzZGljZHhFanc9PQotLS0tLUVORCBSU0EgUFJJVkFURSBLRVktLS0tLQ==
+  ENCRYPTION_KEY: "f3dbfaa1a18ff49c1e6a2a89f120dca9389549d02659dfa306bb476411ad8801"
+  DB_ADMIN_USER: postgres
+  DB_ADMIN_PASSWORD: password
+  DB_USER: gitproviderdbuser
+  DB_PASSWORD: "cGFzc3dvcmQ="
+  DB_HOST: host.docker.internal
+  DB_PORT: "5432"
+  DB_SSL_MODE: disable
+  ADMIN_DB_NAME: postgres
+---
+# Source: secure-iac-gitprovider/templates/secure-iac-gitprovider-secret.yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: secure-iac-iac-secret
+  namespace: sysdig
+type: Opaque
+data:
+  segmentio.token: ""
+  MONITOR_BACKEND_AUDIT_TOKEN: "YWUzNWJhZjAtMWJjNi00MmU5LWFhNWEtNGIxYmZiOTI2NTA5"
+stringData:
+  DB_USER: root
+  DB_PASSWORD: "password"
+  DB_HOST: host.docker.internal
+  MONGO_DB_URI: "mongodb+srv://root:password@host.docker.internal/iac?retryWrites=true&w=majority"
+---
+# Source: secure-iac-gitprovider/templates/secure-iac-gitprovider-config.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: secure-iac-gitprovider-config
+  namespace: sysdig
+data:
+  PROMETHEUS_PORT: "25001"
+  proxyConfg: |
+    [
+      {
+        "host": "localhost",
+        "port": 25001,
+        "path": "/metrics"
+      },
+      {
+        "host": "localhost",
+        "port": 25002,
+        "path": "/metrics"
+      }
+    ]
+  METRICS_ENABLED: "false"
+  ENVIRONMENT: DEVELOPMENT
+  DB_NAME: gitprovider
+  VOLUME_BASE_DIR_PATH: /git
+  PR_SCAN_SUPPORTED_EXTENSIONS: (?i)^.*\.(tf\.json|tfvars|ya?ml|tf|tpl)$
+  WEBHOOKS_URL: https://smee.io/twcSNGGXwUira5hA
+  NATS_URL: "nats"
+  NATS_TLS_ENABLED: "true"
+  SERVICE_NAME: secure-iac-gitprovider
+  AUDIT_FORWARDING_ENABLED: "true"
+  INGESTION_API_GRPC_ENDPOINT: sysdigcloud-events-ingestion:3000
+  AUDIT_WORKERS: "5"
+  LEGACY_BACKEND_ENDPOINT: "http://backend-mock-service:9000"
+  LEGACY_BACKEND_TLS_SKIP_CHECK: "true"
+---
+# Source: secure-iac-gitprovider/templates/secure-iac-gitprovider-config.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: secure-iac-iac-config
+  namespace: sysdig
+data:
+  METRICS_ENABLED: "false"
+  PORT: "8090"
+  PROMETHEUS_PORT: "25002"
+  DB_NAME: iac
+  ENVIRONMENT: DEVELOPMENT
+  NATS_URL: nats
+  NATS_TLS_ENABLED: "true"
+  VOLUME_BASE_DIR_PATH: /git
+  SERVICE_NAME: secure-iac-gitprovider
+  AUDIT_FORWARDING_ENABLED: "true"
+  INGESTION_API_GRPC_ENDPOINT: sysdigcloud-events-ingestion:3000
+  AUDIT_WORKERS: "5"
+  LEGACY_BACKEND_ENDPOINT: "http://backend-mock-service:9000"
+  LEGACY_BACKEND_TLS_SKIP_CHECK: "true"
+---
+# Source: secure-iac-gitprovider/templates/secure-iac-gitprovider-service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: secure-iac-gitprovider-service
+  namespace: sysdig
+spec:
+  type: ClusterIP
+  selector:
+    app: secure-iac-gitprovider
+  ports:
+    - port: 8080
+      targetPort: 8080
+      name: gitprovider
+    - port: 8090
+      targetPort: 8090
+      name: iac
+---
+# Source: secure-iac-gitprovider/templates/statefulset.yaml
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  labels:
+    app: secure-iac-gitprovider
+  name: secure-iac-gitprovider-statefulset
+  namespace: sysdig
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: secure-iac-gitprovider
+  serviceName: secure-iac-gitprovider-service
+  volumeClaimTemplates:
+    - metadata:
+        name : git-volume
+      spec:
+        storageClassName: sysdig-reclaim-delete
+        accessModes:
+          - ReadWriteOnce
+        resources:
+          requests:
+            storage: 1Gi
+  template:
+    metadata:
+      labels:
+        app: secure-iac-gitprovider
+        np-allow-ingress: 'true'
+      annotations:
+        prometheus.io/path: /metrics
+        prometheus.io/port: "25000"
+        prometheus.io/scrape: "true"
+    spec:
+      serviceAccountName: sysdig
+      imagePullSecrets:
+        - name: sysdigcloud-pull-secret
+      volumes:
+        - name: proxy-config-vol
+          configMap:
+            name: secure-iac-gitprovider-config
+            items:
+              - key: proxyConfg
+                path: proxy_config
+        
+      containers:        
+        - name : gitprovider
+          image: "local/gitprovider:latest"
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8080
+          volumeMounts:
+            - mountPath: /git
+              name: git-volume
+          env:
+            - name: NATS_CLIENT_ID
+              valueFrom:
+                fieldRef:
+                  apiVersion: v1
+                  fieldPath: metadata.name
+            - name: NATS_TLS_CA
+              value: /opt/certs/nats-js-tls-certs/ca.crt
+            - name: NATS_USER
+              valueFrom:
+                secretKeyRef:
+                  name: nats-credentials-sysdig
+                  key: NATS_USER
+                  optional: true
+            - name: NATS_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: nats-credentials-sysdig
+                  key: NATS_USER
+                  optional: true
+            - name: NATS_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: nats-credentials-sysdig
+                  key: NATS_PASSWORD
+                  optional: true
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: IAC_PORT
+              value: "8090"
+          envFrom:
+            - secretRef:
+                name: secure-iac-gitprovider-secret
+            - configMapRef:
+                name: secure-iac-gitprovider-config
+          resources:
+            limits:
+              cpu: "2"
+              memory: 2Gi
+            requests:
+              cpu: "1"
+              memory: 200Mi
+        - name: iac
+          image: "local/iac:latest"
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8090
+          volumeMounts:
+            - mountPath: /git
+              name: git-volume
+            
+          env:
+            - name: NATS_CLIENT_ID
+              valueFrom:
+                fieldRef:
+                  apiVersion: v1
+                  fieldPath: metadata.name
+            - name: NATS_TLS_CA
+              value: /opt/certs/nats-js-tls-certs/ca.crt
+            - name: NATS_USER
+              valueFrom:
+                secretKeyRef:
+                  name: nats-credentials-sysdig
+                  key: NATS_USER
+                  optional: true
+            - name: NATS_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: nats-credentials-sysdig
+                  key: NATS_USER
+                  optional: true
+            - name: NATS_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: nats-credentials-sysdig
+                  key: NATS_PASSWORD
+                  optional: true
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+          envFrom:
+            - configMapRef:
+                name: secure-iac-iac-config
+            - secretRef:
+                name: secure-iac-iac-secret
+          resources:
+            limits:
+              cpu: "3"
+              memory: 2Gi
+            requests:
+              cpu: "1"
+              memory: 200Mi
+        - name: metrics-proxy
+          image: "local/metricsproxy:latest"
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 25000
+              name: metrics
+          volumeMounts:
+            - mountPath: /etc/config
+              name: proxy-config-vol
+          env:
+            - name: PORT
+              value: "25000"
+            - name: SRV_PATH
+              value: /metrics
+            - name: HOSTS_FILE_PATH
+              value: /etc/config/proxy_config
+            - name: ENVIRONMENT
+              value: DEVELOPMENT
+          resources:
+            limits:
+              cpu: "0.2"
+              memory: 500Mi
+            requests:
+              cpu: "0.1"
+              memory: 250Mi
+---
+# Source: secure-iac-gitprovider/templates/secure-iac-gitprovider-pre-job.yaml
+apiVersion: batch/v1
+kind: Job
+metadata:
+  namespace: sysdig
+  name: db-secure-iac-gitprovider-postgres-init-job
+spec:
+  backoffLimit: 0
+  template:
+    metadata:
+      name: secure-iac-gitprovider-postgres-db-upgrade-job
+    spec:
+      serviceAccountName: sysdig
+      restartPolicy: Never
+      imagePullSecrets:
+        - name: sysdigcloud-pull-secret
+      containers:
+        - name: secure-iac-gitprovider-db-upgrade-job-container
+          image: local/gitprovider-db-migrations:latest
+          imagePullPolicy: IfNotPresent
+          command:
+            - /bin/sh
+            - -c
+            - |
+              dbName=$(head -n 1 _name)
+              postgresEndPoint=${POSTGRES_HOST}:${POSTGRES_PORT}
+              psql postgresql://${POSTGRES_ADMIN}:${PGPASSWORD}@${postgresEndPoint}/${POSTGRES_DB} <<- EOF
+                  CREATE DATABASE ${dbName};
+                  CREATE USER ${POSTGRES_USER} WITH ENCRYPTED PASSWORD '${POSTGRES_USER_PASS}';
+                  GRANT ALL PRIVILEGES ON DATABASE ${dbName} TO ${POSTGRES_USER};
+              EOF
+              connString="postgresql://${POSTGRES_USER}:${POSTGRES_USER_PASS}@${postgresEndPoint}/${dbName}?sslmode=$SSL_MODE&query"
+              migrate -source file://migrations -database "$connString" up
+          env:
+            - name: POSTGRES_ADMIN
+              valueFrom:
+                secretKeyRef:
+                  name: secure-iac-gitprovider-secret
+                  key: DB_ADMIN_USER
+            - name: PGPASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: secure-iac-gitprovider-secret
+                  key: DB_ADMIN_PASSWORD
+            - name: POSTGRES_USER
+              valueFrom:
+                secretKeyRef:
+                  name: secure-iac-gitprovider-secret
+                  key: DB_USER
+            - name: POSTGRES_USER_PASS
+              valueFrom:
+                secretKeyRef:
+                  name: secure-iac-gitprovider-secret
+                  key: DB_PASSWORD
+            - name: POSTGRES_HOST
+              valueFrom:
+                secretKeyRef:
+                  name: secure-iac-gitprovider-secret
+                  key: DB_HOST
+            - name: POSTGRES_PORT
+              valueFrom:
+                secretKeyRef:
+                  name: secure-iac-gitprovider-secret
+                  key: DB_PORT
+            - name: SSL_MODE
+              valueFrom:
+                secretKeyRef:
+                  name: secure-iac-gitprovider-secret
+                  key: DB_SSL_MODE
+            - name: POSTGRES_DB
+              valueFrom:
+                secretKeyRef:
+                  name: secure-iac-gitprovider-secret
+                  key: ADMIN_DB_NAME
+---
+# Source: secure-iac-gitprovider/templates/secure-iac-gitprovider-pre-job.yaml
+apiVersion: batch/v1
+kind: Job
+metadata:
+  namespace: sysdig
+  name: db-secure-iac-gitprovider-mongodb-init-job
+spec:
+  backoffLimit: 0
+  template:
+    metadata:
+      name: secure-iac-gitprovider-mongo-db-upgrade-job
+    spec:
+      serviceAccountName: sysdig
+      restartPolicy: Never
+      imagePullSecrets:
+        - name: sysdigcloud-pull-secret
+      volumes:
+        
+      containers:
+
+        - name: secure-iac-iac-db-upgrade-job-container
+          image: local/iac-db-migrations:latest
+          imagePullPolicy: IfNotPresent
+          command:
+            - /bin/sh
+            - -c
+            - |
+              if [ ! -z "${MONGO_DB_ADMIN_URI}" ]; then
+                echo "Checking if user exists: '${DB_USER}'"
+                user=$(mongosh "${MONGO_DB_ADMIN_URI}" --eval "db.getUser('${DB_USER}')" | tail -n1)
+                if [ "$user" = "null" ]; then
+                  echo "Creating user: '${DB_USER}'"
+                  mongosh "${MONGO_DB_ADMIN_URI}" --eval "db.createUser({ user: '${DB_USER}', pwd: '${DB_PASSWORD}', roles: [ 'readWriteAnyDatabase', 'dbAdminAnyDatabase' ] })"
+                fi;
+              fi
+              
+              migrate -source file://migrations -database "${MONGO_DB_URI}" up
+          envFrom:
+            - secretRef:
+                name: secure-iac-iac-secret
+            - configMapRef:
+                name: secure-iac-iac-config
+          volumeMounts:
+---
+# Source: secure-iac-gitprovider/templates/ingress.yaml
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  annotations:
+    ingress.kubernetes.io/affinity: cookie
+    ingress.kubernetes.io/config-backend: |-
+      timeout server 10m
+      timeout client 10m
+    ingress.kubernetes.io/session-cookie-name: INGRESSCOOKIEAPI
+    kubernetes.io/ingress.class: haproxy
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "600"
+  labels:
+    app.kubernetes.io/managed-by: ingress-config
+    app.kubernetes.io/name: ingress-config
+    app.kubernetes.io/part-of: sysdigcloud
+    role: ingress-config
+    tier: infra
+  name: sysdigcloud-secure-iac-gitprovider-ingress
+  namespace: sysdig
+spec:
+  rules:
+    - http:
+        paths:
+          - backend:
+              service:
+                name: secure-iac-gitprovider-service
+                port:
+                  number: 8080
+            path: /api/cspm/v1/gitProvider
+            pathType: ImplementationSpecific
+          - backend:
+              service:
+                name: secure-iac-gitprovider-service
+                port:
+                  number: 8090
+            path: /api/cspm/v1/iac
+            pathType: ImplementationSpecific
