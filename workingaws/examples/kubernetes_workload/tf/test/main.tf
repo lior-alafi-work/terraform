@@ -25,6 +25,9 @@ resource "kubernetes_deployment" "test" {
         container {
           image = "nginx:latest"
           name  = "test"
+          security_context {
+            read_only_root_filesystem = true
+          }
         }
 
         security_context {
