@@ -5,9 +5,9 @@ resource "kubernetes_deployment" "risky_redis_deployment" {
   }
 
   spec {
-    replicas = 1
+    replicas          = 1
     min_ready_seconds = 6
-    
+
     selector {
       match_labels = {
         app = "web"
@@ -71,13 +71,13 @@ resource "kubernetes_deployment" "risky_redis_deployment" {
               add = ["SYS_ADMIN", "NET_ADMIN", "NET_RAW"]
             }
 
-            privileged                 = true
+            privileged                 = false
             allow_privilege_escalation = true
           }
         }
 
         container {
-          name = "some-second-container"
+          name  = "some-second-container"
           image = "mysql"
         }
 
