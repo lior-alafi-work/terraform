@@ -5,9 +5,9 @@ resource "kubernetes_deployment" "risky_redis_deployment" {
   }
 
   spec {
-    replicas = 1
+    replicas          = 1
     min_ready_seconds = 6
-    
+
     selector {
       match_labels = {
         app = "web"
@@ -72,13 +72,16 @@ resource "kubernetes_deployment" "risky_redis_deployment" {
             }
 
             privileged                 = true
-            allow_privilege_escalation = true
+            allow_privilege_escalation = false
           }
         }
 
         container {
-          name = "some-second-container"
+          name  = "some-second-container"
           image = "mysql"
+          security_context {
+            allow_privilege_escalation = false
+          }
         }
 
         service_account_name            = "default"
