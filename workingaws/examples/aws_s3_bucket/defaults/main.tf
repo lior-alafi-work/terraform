@@ -31,7 +31,7 @@ resource "aws_s3_bucket" "example" {
 }
 
 resource "aws_s3_bucket_server_side_encryption_configuration" "example" {
-  count = var.enable_encryption ? 1 : 0
+  count  = var.enable_encryption ? 1 : 0
   bucket = aws_s3_bucket.example.bucket
 
   rule {
@@ -58,4 +58,9 @@ resource "aws_s3_bucket_policy" "allow_http_access" {
   }
 }
 EOF
+}
+resource "aws_s3_bucket_logging" "example" {
+  target_prefix = "jhbhj/"
+  bucket        = aws_s3_bucket.example.id
+  target_bucket = aws_s3_bucket.hhju.id
 }
