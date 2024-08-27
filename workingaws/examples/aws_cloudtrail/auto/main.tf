@@ -13,7 +13,7 @@ data "aws_canonical_user_id" "current" {}
 
 resource "aws_kms_key" "example" {
   description             = "KMS key is used to encrypt DB instance"
-  deletion_window_in_days = 7
+  deletion_window_in_days = 30
 }
 
 resource "aws_cloudtrail" "example" {
